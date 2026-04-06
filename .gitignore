@@ -6,3 +6,8 @@ build/
 token.txt
 frontend/node_modules/
 backend/node_modules/
+infra/.terraform/
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+*.exe
+*.zip
