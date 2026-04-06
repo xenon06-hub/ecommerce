@@ -1,0 +1,17 @@
+[
+  {
+    "name": "frontend",
+    "image": "802854082682.dkr.ecr.eu-north-1.amazonaws.com/ecommerce-frontend:latest",
+    "portMappings": [
+      { "containerPort": 80 }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "/ecs/ecommerce/frontend",
+        "awslogs-region": "eu-north-1",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]
