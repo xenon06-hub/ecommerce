@@ -1,4 +1,4 @@
-const BASE = 'http://ecommerce-alb-263270954.eu-north-1.elb.amazonaws.com/api';
+const BASE = 'https://www.xenon-shop.co.in/api';
 
 const getSessionId = () => {
   let id = localStorage.getItem('session_id');

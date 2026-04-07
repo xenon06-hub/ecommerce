@@ -1,5 +1,10 @@
-variable "aws_region"   { default = "eu-north-1" }
-variable "project_name" { default = "ecommerce" }
-variable "db_username"  { default = "appuser" }
-variable "db_password"  { default = "apppassword123" }
-variable "db_name"      { default = "ecommercedb" }
+variable "aws_region"        { default = "eu-north-1" }
+variable "project_name"      { default = "ecommerce" }
+variable "db_username"       { default = "appuser" }
+variable "db_password"       { default = "apppassword123" }
+variable "db_name"           { default = "ecommercedb" }
+variable "domain_name"       { default = "xenon-shop.co.in" }
+variable "certificate_arn"   { default = "arn:aws:acm:eu-north-1:802854082682:certificate/b942c20a-99da-4195-a35f-c30554c9f982" }
+variable "frontend_image"    { default = "802854082682.dkr.ecr.eu-north-1.amazonaws.com/ecommerce-frontend:latest" }
+variable "backend_image"     { default = "802854082682.dkr.ecr.eu-north-1.amazonaws.com/ecommerce-backend:latest" }
+variable "account_id"        { default = "802854082682" }

@@ -66,9 +66,9 @@ resource "aws_lb_target_group" "frontend" {
   target_type = "ip"
 
   health_check {
-    path             = "/"
+    path              = "/"
     healthy_threshold = 2
-    interval         = 30
+    interval          = 30
   }
 }
 
@@ -80,16 +80,35 @@ resource "aws_lb_target_group" "backend" {
   target_type = "ip"
 
   health_check {
-    path             = "/health"
+    path              = "/health"
     healthy_threshold = 2
-    interval         = 30
+    interval          = 30
   }
 }
 
+# ── HTTP listener → redirect to HTTPS ─────────────────────────
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+# ── HTTPS listener ────────────────────────────────────────────
+resource "aws_lb_listener" "https" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = var.certificate_arn
 
   default_action {
     type             = "forward"
@@ -97,8 +116,9 @@ resource "aws_lb_listener" "http" {
   }
 }
 
+# ── API routing rule ──────────────────────────────────────────
 resource "aws_lb_listener_rule" "api" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 100
 
   action {
@@ -137,10 +157,6 @@ resource "aws_iam_role_policy_attachment" "ecs_exec" {
   role       = aws_iam_role.ecs_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
-resource "aws_iam_role_policy_attachment" "ecr_pull" {
-  role       = aws_iam_role.ecs_exec.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
 
 resource "aws_iam_role_policy" "ecs_ecr_inline" {
   name = "${var.project_name}-ecr-policy"
@@ -148,20 +164,18 @@ resource "aws_iam_role_policy" "ecs_ecr_inline" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "*"
-      }
-    ]
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+      Resource = "*"
+    }]
   })
 }
 
@@ -187,7 +201,7 @@ resource "aws_ecs_task_definition" "frontend" {
 
   container_definitions = jsonencode([{
     name  = "frontend"
-    image = "${aws_ecr_repository.frontend.repository_url}:latest"
+    image = var.frontend_image
     portMappings = [{ containerPort = 80 }]
     logConfiguration = {
       logDriver = "awslogs"
@@ -210,7 +224,7 @@ resource "aws_ecs_task_definition" "backend" {
 
   container_definitions = jsonencode([{
     name  = "backend"
-    image = "${aws_ecr_repository.backend.repository_url}:latest"
+    image = var.backend_image
     portMappings = [{ containerPort = 5000 }]
     environment = [
       { name = "DB_HOST",     value = aws_db_instance.main.address },
@@ -250,7 +264,7 @@ resource "aws_ecs_service" "frontend" {
     container_port   = 80
   }
 
-  depends_on = [aws_lb_listener.http]
+  depends_on = [aws_lb_listener.https]
 }
 
 resource "aws_ecs_service" "backend" {
@@ -272,5 +286,5 @@ resource "aws_ecs_service" "backend" {
     container_port   = 5000
   }
 
-  depends_on = [aws_lb_listener.http]
+  depends_on = [aws_lb_listener.https]
 }

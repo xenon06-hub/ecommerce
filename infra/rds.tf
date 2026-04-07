@@ -21,7 +21,7 @@ resource "aws_security_group" "rds" {
 
 resource "aws_db_subnet_group" "main" {
   name       = "${var.project_name}-db-subnet"
-  subnet_ids = [aws_subnet.public_1.id, aws_subnet.public_2.id]
+  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
 }
 
 resource "aws_db_instance" "main" {
@@ -38,7 +38,7 @@ resource "aws_db_instance" "main" {
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.rds.id]
   skip_final_snapshot    = true
-  publicly_accessible    = true
+  publicly_accessible    = false
 
   tags = { Name = "${var.project_name}-db" }
 }
