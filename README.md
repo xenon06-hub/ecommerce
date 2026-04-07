@@ -47,5 +47,22 @@ A full-stack e-commerce application built with Node.js and deployed using modern
 7. Automated pipeline using Jenkins
 
 ---
+## 📈 Key Achievements
 
-## 📦 Project Architecture
+- Reduced deployment time using automation
+- Implemented scalable container-based architecture
+- Hands-on experience with real-world DevOps tools
+
+---
+
+## 🧑‍💻 Author
+
+**Sahil Yadav**  
+- LinkedIn: https://linkedin.com/in/sahil-yadav06  
+- GitHub: https://github.com/xenon06-hub
+
+---
+
+## ⭐ Show Your Support
+
+If you like this project, give it a ⭐ on GitHub!
